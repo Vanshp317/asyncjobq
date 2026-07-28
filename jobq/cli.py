@@ -11,7 +11,7 @@ terminals, push jobs in from another, and watch them get processed.
     jobq requeue-dead                 # revive dead-lettered jobs
 
 The worker ships with a few DEMO task handlers (echo / sleep / flaky) so you can
-play with it out of the box. In a real app you'd register your own handlers —
+play with it out of the box. In a real app you'd register your own handlers;
 see register_demo_handlers() for the pattern.
 
 DSN comes from --dsn or the JOBQ_DSN env var.

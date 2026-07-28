@@ -20,7 +20,7 @@ async def test_expired_lease_is_recovered(q: JobQueue):
     recovered = await q.recover_expired_leases()
     assert recovered == 1
 
-    # Now a healthy worker can claim it — note attempts keeps climbing.
+    # Now a healthy worker can claim it; note attempts keeps climbing.
     again = await q.claim("default", 1, "w2", 30)
     assert len(again) == 1
     assert again[0].attempts == 2
@@ -36,7 +36,7 @@ async def test_stale_worker_cannot_complete_after_reclaim(q: JobQueue):
     c2 = (await q.claim("default", 1, "w2", lease_seconds=30))[0]
     assert c2.id == c1.id
 
-    # w1 comes back from the dead and tries to complete — must be rejected.
+    # w1 comes back from the dead and tries to complete, but must be rejected.
     stolen = await q.complete(c1.id, "w1", {"oops": True})
     assert stolen is False
 

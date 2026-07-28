@@ -3,7 +3,7 @@
 A durable asynchronous job queue built on PostgreSQL with `asyncio`. Workers
 pull jobs, run handlers concurrently, and the system survives crashes,
 duplicate submissions, and slow/poison jobs. No broker, no extra
-infrastructure — just Postgres.
+infrastructure. Just Postgres.
 
 This is a from-scratch implementation of the same primitives you find in SQS,
 Sidekiq, or Celery, written to make the hard parts explicit rather than hidden
@@ -11,25 +11,25 @@ behind a library.
 
 ## Features
 
-- **Atomic claiming** via `SELECT ... FOR UPDATE SKIP LOCKED` — concurrent
+- **Atomic claiming** via `SELECT ... FOR UPDATE SKIP LOCKED`, so concurrent
   workers never claim the same job, with no application-level locks.
 - **Bounded concurrency** per worker (asyncio, a fixed number of in-flight jobs).
-- **Submission idempotency** — an optional idempotency key dedupes enqueues, so
+- **Submission idempotency**: an optional idempotency key dedupes enqueues, so
   a producer that retries never creates duplicate work.
-- **At-least-once delivery with retries** — exponential backoff with full jitter,
+- **At-least-once delivery with retries**: exponential backoff with full jitter,
   configurable `max_attempts`.
-- **Leases / visibility timeout** — a claimed job is leased for a fixed window;
+- **Leases / visibility timeout**: a claimed job is leased for a fixed window;
   a reaper returns expired leases to the queue, so a crashed worker's job is
   retried elsewhere.
-- **Lease heartbeats** — long-running jobs renew their lease so the reaper
+- **Lease heartbeats**: long-running jobs renew their lease so the reaper
   doesn't steal them mid-flight.
-- **Fencing** — a worker that lost its lease can't complete or clobber the job's
+- **Fencing**: a worker that lost its lease can't complete or clobber the job's
   new owner.
-- **Dead-letter state** — jobs that exhaust their retries are parked, and can be
+- **Dead-letter state**: jobs that exhaust their retries are parked, and can be
   inspected and requeued operationally.
-- **Scheduled / delayed jobs** — `delay=` enqueues a job to run in the future.
-- **Named queues** — isolate workloads (`emails`, `reports`, ...).
-- **Graceful shutdown** — on SIGINT/SIGTERM the worker stops claiming and drains
+- **Scheduled / delayed jobs**: `delay=` enqueues a job to run in the future.
+- **Named queues**: isolate workloads (`emails`, `reports`, ...).
+- **Graceful shutdown**: on SIGINT/SIGTERM the worker stops claiming and drains
   in-flight jobs before exiting.
 
 ## Using it (CLI)
@@ -41,13 +41,13 @@ Open a few terminals (all with `JOBQ_DSN` set, or pass `--dsn`):
 ```bash
 jobq init                                  # create the schema (once)
 
-# Terminal A — a worker
+# Terminal A: a worker
 jobq worker --concurrency 4
 
-# Terminal B — a second worker (watch them split the load)
+# Terminal B: a second worker (watch them split the load)
 jobq worker --concurrency 4
 
-# Terminal C — push work in and watch it drain
+# Terminal C: push work in and watch it drain
 jobq enqueue flaky --count 50 --payload '{"fail_rate":0.5}'
 jobq watch                                 # live: queued / running / succeeded / dead
 ```
@@ -63,7 +63,7 @@ Things worth trying, because they're the demos that land in interviews:
   let it run, then `jobq stats` shows them `dead`; `jobq requeue-dead` revives them.
 
 The worker ships with demo handlers (`echo`, `sleep`, `flaky`) so it works out of
-the box. For a real app you register your own — see `register_demo_handlers()`
+the box. For a real app you register your own; see `register_demo_handlers()`
 in `jobq/cli.py` for the pattern, or use the library directly (below).
 
 ## Quick start (tests)
@@ -122,7 +122,7 @@ One table, `jobs`, holds everything. A job's lifecycle is encoded in `status`:
    fail + attempts >= max  ──►  dead  ──(requeue_dead)──► queued
 ```
 
-- `jobq/queue.py` owns **all** the SQL — the consistency-critical code lives in
+- `jobq/queue.py` owns **all** the SQL, so the consistency-critical code lives in
   one auditable place.
 - `jobq/worker.py` orchestrates: claim loop, concurrency limit, heartbeats,
   reaper, graceful drain. It contains no SQL.
@@ -168,7 +168,7 @@ pattern is a well-trodden production approach. The storage layer is isolated in
 ## Tradeoffs & honest limitations
 
 - **Polling, not push.** Workers poll on an interval. `LISTEN/NOTIFY` would cut
-  latency — a natural next step.
+  latency, and is a natural next step.
 - **At-least-once only.** See above; true exactly-once isn't offered (or
   achievable for arbitrary side effects).
 - **Single-table contention.** Fine to tens of thousands of jobs/sec on one
@@ -182,4 +182,8 @@ pattern is a well-trodden production approach. The storage layer is isolated in
 - A small CLI / web dashboard reading `stats()`.
 - Prometheus metrics (claim latency, queue depth, retry rate).
 - Cancel-on-lost-lease (abort the handler when a heartbeat fails).
+
+## License
+
+Released under the MIT License. See [LICENSE](LICENSE).
 ```

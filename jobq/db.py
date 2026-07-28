@@ -28,7 +28,7 @@ async def create_pool(dsn: str, *, min_size: int = 1, max_size: int = 10) -> asy
 
 
 async def create_schema(pool: asyncpg.Pool) -> None:
-    """Apply schema.sql (idempotent — safe to call on every startup)."""
+    """Apply schema.sql (idempotent, safe to call on every startup)."""
     sql = _SCHEMA_PATH.read_text()
     async with pool.acquire() as conn:
         await conn.execute(sql)

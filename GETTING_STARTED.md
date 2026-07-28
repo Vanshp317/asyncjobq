@@ -4,24 +4,21 @@ Follow these steps top to bottom. Commands are for macOS (your setup).
 
 ## 0. Prerequisites (install these once, if you don't have them)
 
-- **Docker Desktop** — runs the Postgres database. Download from
+- **Docker Desktop**: runs the Postgres database. Download from
   https://www.docker.com/products/docker-desktop/ , install it, and **open the
   app** so it's running (whale icon in the menu bar). Verify in a terminal:
   ```
   docker --version
   ```
-- **Python 3.11+** — you already have Anaconda's Python. Verify:
+- **Python 3.11+**: you already have Anaconda's Python. Verify:
   ```
   python --version
   ```
 
 ## 1. Get the code
 
-Download `asyncjobq.zip`, then in Terminal:
-
 ```
-cd ~/Downloads
-unzip -o asyncjobq.zip
+git clone https://github.com/Vanshp317/asyncjobq.git
 cd asyncjobq
 ```
 
@@ -74,17 +71,17 @@ new terminal, first run steps from section 4 again (cd into the folder + export
 JOBQ_DSN):
 
 ```
-cd ~/Downloads/asyncjobq
+cd asyncjobq
 export JOBQ_DSN=postgres://postgres:postgres@127.0.0.1:5432/jobq
 ```
 
-### Terminal 1 — start a worker (it stays running)
+### Terminal 1: start a worker (it stays running)
 
 ```
 jobq worker --concurrency 4
 ```
 
-### Terminal 2 — push jobs in, then watch them process
+### Terminal 2: push jobs in, then watch them process
 
 ```
 jobq enqueue flaky --count 50 --payload '{"fail_rate":0.5}'
@@ -126,4 +123,4 @@ jobq --help                                  # all commands
 - `connection refused` on port 5432 → `docker compose ps`; if not healthy yet,
   wait a few seconds and retry.
 - `no configuration file provided` / `does not appear to be a Python project`
-  → you're not inside the `asyncjobq` folder. `cd ~/Downloads/asyncjobq`.
+  → you're not inside the `asyncjobq` folder. `cd` into it.

@@ -6,11 +6,19 @@ build-backend = "setuptools.build_meta"
 name = "asyncjobq"
 version = "0.1.0"
 description = "A durable async job queue on Postgres: concurrency control, idempotency, retries, leases, dead-lettering."
+readme = "README.md"
 requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "Vansh Patel"}]
+keywords = ["job-queue", "task-queue", "asyncio", "postgres", "workers", "background-jobs"]
 dependencies = ["asyncpg>=0.29"]
 
 [project.optional-dependencies]
 test = ["pytest>=8", "pytest-asyncio>=0.23"]
+
+[project.urls]
+Homepage = "https://github.com/Vanshp317/asyncjobq"
+Repository = "https://github.com/Vanshp317/asyncjobq"
 
 [project.scripts]
 jobq = "jobq.cli:main"

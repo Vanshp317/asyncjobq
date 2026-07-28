@@ -101,7 +101,7 @@ class Worker:
                 task.add_done_callback(self._running.discard)
 
             if not claimed:
-                # Nothing to do — sleep, but wake immediately on stop().
+                # Nothing to do, so sleep but wake immediately on stop().
                 try:
                     await asyncio.wait_for(self._stop.wait(), timeout=self.poll_interval)
                 except asyncio.TimeoutError:

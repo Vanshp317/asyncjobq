@@ -1,4 +1,4 @@
-"""asyncjobq — a durable async job queue on Postgres.
+"""asyncjobq: a durable async job queue on Postgres.
 
 Public API:
     from jobq import JobQueue, Worker, Job, JobStatus, create_pool, create_schema

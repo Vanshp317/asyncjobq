@@ -32,7 +32,7 @@ class JobQueue:
         idempotency_key: Optional[str] = None,
     ) -> Job:
         """Insert a job. If `idempotency_key` is given and a job with that key
-        already exists, no new row is created and the existing job is returned —
+        already exists, no new row is created and the existing job is returned,
         so a producer that retries enqueue (e.g. after a network blip) never
         creates duplicates.
         """
@@ -75,7 +75,7 @@ class JobQueue:
         FOR UPDATE SKIP LOCKED is the heart of the queue: concurrent workers
         running this exact statement will each lock a *disjoint* set of rows
         and skip rows another transaction already holds, so no two workers ever
-        claim the same job — without any application-level locking.
+        claim the same job without any application-level locking.
 
         attempts is incremented here (at claim time, not failure time) so that a
         worker which crashes mid-job still "spends" an attempt, bounding crash
@@ -113,7 +113,7 @@ class JobQueue:
         """Extend the lease on a job this worker still owns (heartbeat).
 
         Returns False if the worker no longer owns the job (it was reaped and
-        possibly reclaimed elsewhere) — the caller should stop work to avoid
+        possibly reclaimed elsewhere), so the caller should stop work to avoid
         duplicating effort.
         """
         result = await self.pool.fetchval(
@@ -176,7 +176,7 @@ class JobQueue:
     async def recover_expired_leases(self) -> int:
         """Reaper: return running jobs whose lease has expired back to 'queued'.
 
-        This is how the system tolerates worker crashes — the same idea as an
+        This is how the system tolerates worker crashes, the same idea as an
         SQS visibility timeout. Returns the number of jobs recovered.
         """
         rows = await self.pool.fetch(
